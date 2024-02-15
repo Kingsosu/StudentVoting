@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock title %}
+
+{% block countdown %}
+    {% include 'snippets/countdown_set.html' %}
+{% endblock countdown %}
+
+
+{% block content %}
+<style type="text/css">
+    #id_cropped_image_display {
+        height: auto;
+        object-fit: cover;
+    }
+    #id_profile_image_display1{
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+    }
+    .image-container{
+        position: relative;
+    }
+    #drag-content{
+        width: 100%;
+        height: 100%;
+        border: 2px dashed #bbb5ff;
+        background: #f7f8ff;
+        padding: 1rem;
+        cursor: pointer;
+    }
+    #drag-content.active{
+        border: 2px solid #bbb5ff;
+    }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card mt-4 bg-light shadow-md p-md-3" style="width: 400px;">
+        <div class="card-body">
+            <p class="mb-3 fw-medium fs-5">Edit Profile</p>
+            <div class="image-container mx-auto mb-3">
+                <img class="d-block border shadow-lg border-dark rounded-circle img-fluid mx-auto profile-image" alt="Profile Image" id="id_profile_image_display1" src="{{ form.initial.profile_image.url }}">
+                <div class="d-flex justify-content-center mt-2">
+                    <button data-bs-toggle="modal" data-bs-target="#uploadModal" class="btn btn-primary">
+                        Upload <i class="fa-solid fa-upload"></i>
+                    </button>
+                </div>
+            </div>
+            <form class="form-signin" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="id_input_email">Email</label>
+                    <input class="form-control" type="text" id="id_input_email" name="email" value="{{form.initial.email}}" placeholder="Email address" required autofocus>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="id_input_username">Username</label>
+                    <input class="form-control" type="text" id="id_input_username" name="username" value="{{form.initial.username}}" placeholder="Username" required autofocus>
+                </div>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                    <div style="color: red">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <button class="btn btn-primary w-100" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- State 1: Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-screen" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-body" id="drop-area">
+                <h5 class="modal-title text-center" id="uploadModalLabel">Image Upload</h5>
+                <label for="id_upload_profile_image" class="fs-5">
+                    <input class="form-control" type="file" id="id_upload_profile_image" name="profile_image" onchange="fileSelected(event)" hidden>
+                </label>
+
+                <div id="drag-content" class="d-flex align-items-center justify-content-center">
+                    <p class="text-center fs-6 mb-0">Drag and drop a picture, or click to select file</p>
+                </div>
+                <div class="mt-3 d-flex align-items-center justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary close-modal-button" data-bs-dismiss="modal">Close</button>
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- State 2: Cropper Modal -->
+<div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-screen" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h5 class="modal-title text-center mb-4" id="uploadModalLabel">Image Upload</h5>
+                <div class="image-preview-container mx-auto mb-2 d-flex align-items-center justify-content-center">
+                    <img class="d-block border shadow-lg border-dark img-fluid mx-auto profile-image" alt="Profile Image" id="id_cropped_image_display">
+                </div>
+                <div class="form-group d-flex justify-content-center my-5" id="change-image">
+                    <button type="button" class="btn btn-primary" onclick="changeImage()">
+                        Change Image
+                        <i class="fa-solid fa-upload"></i>
+                    </button>
+                </div>
+
+                <div class="mt-3 d-flex align-items-center justify-content-center gap-2">
+                    <button type="button" class="btn btn-primary" id="save-crop">Save</button>
+                    <button type="button" class="btn btn-outline-secondary close-modal-button" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal for success or error-->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body" style="position: relative;">
+                <p class="text-center mb-0" style="font-size: 3rem;">
+                    <i id="responseIcon"></i>
+                </p>
+                <p id="responseMessage" class="text-center fw-medium text-uppercase"></p>            
+                <div class="d-flex align-items-center justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary close-modal-message" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block userjs %}
+
+   
+<script>
+    
+    const dropArea = document.getElementById('drop-area')
+    const dragContent = document.getElementById('drag-content')
+    const dragText = document.querySelector('#drag-content p')
+    var uploadImageDisplay = document.getElementById('id_cropped_image_display');
+    let file; //this is a global variable and we'll use it inside mutliple functinos
+
+    //If user Drag File Over DragArea
+    dropArea.addEventListener("dragover", function(event){
+        event.preventDefault();
+        dragText.textContent = "Release to upload file";
+        dragContent.classList.add('active');
+    })
+
+    //If user leave dragged File from DragArea
+    dropArea.addEventListener("dragleave", ()=>{
+        dragText.textContent = "Drag and drop a picture, or click to select file"
+        dragContent.classList.remove('active');
+    })
+
+    // If user drop file on DragArea
+    dropArea.addEventListener("drop", function(event) {
+        event.preventDefault(); // Prevent the default behavior of the drop event
+        var file = event.dataTransfer.files[0]
+
+        if(file.type.startsWith("image/")){
+            console.log("This is an image File")
+            fileSelectedUser(file)
+        }
+        else{
+            $('#uploadModal').modal('hide');
+            $('#responseMessage').text(`This is not an image file!!!`).addClass('text-danger');
+            $('#responseIcon').addClass('fa-solid fa-triangle-exclamation text-danger')
+            $('#responseModal').modal('show');
+        }
+    });
+
+    //If user click on the drag-area directly
+    function fileSelected(event) {
+        if (event.target.files) {
+            var file = event.target.files[0];
+            fileSelectedUser(file)
+        }
+    }
+
+    function fileSelectedUser(file){
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var image = e.target.result;
+            uploadImageDisplay.src = image;
+    
+            cropper = new Cropper(uploadImageDisplay, {
+                aspectRatio: 1/1,
+                crop(event) {
+                    setImageCropProperties(
+                        image, event.detail.x, event.detail.y, 
+                        event.detail.width, event.detail.height
+                    );
+                },
+            });
+        };
+        
+        reader.readAsDataURL(file); // Read the file as a data URL
+        $('#uploadModal').modal('hide');
+        $('#cropperModal').modal('show');
+    }
+    
+    document.getElementById('drag-content').addEventListener('click', function() {
+        document.getElementById('id_upload_profile_image').click();
+    });
+
+    document.querySelector('.close-modal-button').addEventListener('click', function() {
+        dragContent.classList.remove('active');
+        dragText.textContent = "Drag and drop a picture, or click to select file"
+        //window.location.reload();
+        $('#uploadModal').modal('hide');
+        $('#cropperModal').modal('hide');
+    });
+
+    document.querySelector('.close-modal-message').addEventListener('click', function() {
+        window.location.reload();
+    });
+    
+    document.getElementById('change-image').addEventListener('click', function() {
+        document.getElementById('id_upload_profile_image').click();
+    });
+
+    function changeImage() {
+        uploadImageDisplay.src = "";
+
+        if(cropper){
+            cropper.destroy();
+            cropper = null;
+        }
+
+        $('#cropperModal').modal('hide');
+        $('#id_upload_profile_image').val(''); // Clear the file input field
+        $('#uploadModal').modal('show');
+    }
+    
+    var cropper, imageFile, base64ImageString, cropX, cropY, cropWidth, cropHeight
+
+    function isImageSizeValid(image){
+		var startIndex = image.indexOf("base64,") + 7
+		var base64str = image.substr(startIndex)
+		var decode = atob(base64str)
+		if(decode.length >= "{{DATA_UPLOAD_MAX_MEMORY_SIZE}}"){
+			return null
+		}
+		return base64str;
+	}
+
+    function setImageCropProperties(image, x, y, width, height){
+		imageFile = image
+		cropX = x
+		cropY = y
+		cropWidth = width
+		cropHeight = height
+	}
+
+    function cropImage(image, x, y, width, height){
+
+		base64ImageString = isImageSizeValid(image)
+	
+		if(base64ImageString != null){
+			var requestData = {
+				"csrfmiddlewaretoken": "{{ csrf_token }}",
+				"image": base64ImageString,
+				"cropX": cropX,
+				"cropY": cropY,
+				"cropWidth": cropWidth,
+				"cropHeight": cropHeight
+			};
+			
+            displayLoadingSpinner(true)
+			
+            // Using jQuery for AJAX request
+			$.ajax({
+				type: 'POST',
+				dataType: "json",
+				url: "{% url 'crop_image' user_id=form.initial.id %}",
+				data: requestData,
+				timeout: 10000,
+
+				success: function(data) {
+					if(data.result == "success"){
+                        $('#cropperModal').modal('hide');
+                        if (data.cropped_profile_image) {
+                            $('#responseMessage').text('Profile image upload successfully').addClass('text-success');
+                            $('#responseIcon').addClass('bi bi-patch-check-fill text-success')
+                            $('#responseModal').modal('show');
+                        }
+					}
+					else if(data.result == "error"){
+                        $('#responseMessage').text(`${data.exception}`).addClass('text-danger');
+                        $('#responseIcon').addClass('fa-solid fa-triangle-exclamation text-danger')
+                        $('#responseModal').modal('show');
+					}
+				},
+				error: function(data){
+					console.error("ERROR...", data)
+				},
+				complete: function(data){
+					displayLoadingSpinner(false)
+				}
+			});
+		}
+		else{
+            $('#cropperModal').modal('hide');
+            $('#responseMessage').text(`Upload an image smaller than 3 MB`).addClass('text-danger');
+            $('#responseIcon').addClass('fa-solid fa-triangle-exclamation text-danger')
+            $('#responseModal').modal('show');
+		}
+	}
+
+
+    var saveCrop = document.getElementById("save-crop")
+    saveCrop.addEventListener("click", function(event){
+        console.log("Sending crop data for processing...")
+        cropImage(
+            imageFile, 
+            cropX, 
+            cropY, 
+            cropWidth, 
+            cropHeight
+        )
+    })
+    
+</script>
+
+{% endblock userjs %}

@@ -1,0 +1,47 @@
+<script>
+    //console.log("countdown_to_start:", "{{ countdown_to_start }}");
+
+    // If election has started, set the countdown
+    var countdownToStart = "{{ countdown_to_start }}";
+    if (countdownToStart !== "") {
+        var electionStart = new Date(countdownToStart).getTime();
+        //console.log("electionStart:", electionStart);
+
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = electionStart - now;
+            
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+
+            // Pad single digit numbers with leading zeros
+            days = padZero(days);
+            hours = padZero(hours);
+            minutes = padZero(minutes);
+            seconds = padZero(seconds);
+
+            // Debugging: Print countdown values
+            //console.log("days:", days, "hours:", hours, "minutes:", minutes, "seconds:", seconds);
+
+            // Update the countdown timer display for voting start
+            document.getElementById('days-to-start').innerHTML = days;
+            document.getElementById('hours-to-start').innerHTML = hours;
+            document.getElementById('minutes-to-start').innerHTML = minutes;
+            document.getElementById('seconds-to-start').innerHTML = seconds;
+            
+            if(distance < 0) {
+                clearInterval(x);
+                // Update the countdown timer display for voting start
+                document.getElementById('days-to-start').innerHTML = "00";
+                document.getElementById('hours-to-start').innerHTML = "00";
+                document.getElementById('minutes-to-start').innerHTML = "00";
+                document.getElementById('seconds-to-start').innerHTML = "00";
+            }
+        }, 1000);
+    } else {
+        console.log("countdown_to_start is empty or invalid");
+    }
+</script>

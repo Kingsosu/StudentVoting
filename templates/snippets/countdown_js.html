@@ -1,0 +1,35 @@
+<script>
+    function padZero(number) {
+        return (number < 10 ? '0' : '') + number;
+    }    
+    
+    countDownFunction();
+    
+    function countDownFunction(){
+        const toggleBtn = document.getElementById("toggleCountdownBtn");
+        const countdownContainer = document.querySelector(".countdown-container");
+        const toggleIcon = document.getElementById("toggleIcon");
+    
+        toggleBtn.addEventListener("click", function() {
+            countdownContainer.classList.toggle('open');
+            if (toggleIcon.classList.contains('fa-times')) {
+                toggleIcon.classList.remove('fa-times');
+                toggleIcon.classList.add('fa-chevron-left');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-times');
+            }
+
+            // Add or remove animation based on the presence of 'open' class
+            if (countdownContainer.classList.contains('open')) {
+                countdownContainer.style.transition = "all 1s linear";
+                countdownContainer.style.transform = "translateX(89%)";
+            } else {
+                countdownContainer.style.transition = "all 1s linear";
+                countdownContainer.style.transform = "translateX(0)";
+            }
+
+        });
+    }
+    
+</script>

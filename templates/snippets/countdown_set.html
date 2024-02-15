@@ -1,0 +1,58 @@
+<div class="countdown-container">
+    <div class="countdown-element d-flex gap-2 align-items-center">
+        {% if election_status == 'not_started' %} 
+        <button id="toggleCountdownBtn" class="btn btn-secondary rounded-circle">
+            <i id="toggleIcon" class="fas fa-times"></i>
+        </button>
+        <div class="countdown-content bg-white border-start border-2 border-danger shadow-sm ps-2 p-2" style="width: 225px !important;">                   
+                <h5 class="fs-6 fw-bold mb-2 text-pc">Countdown to Start</h5>
+                <div class="d-flex gap-3" id="election-to-start">
+                    <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                        <span id="days-to-start" class="text-secondary fw-medium fs-5"></span>d
+                    </p>
+
+                    <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                        <span id="hours-to-start" class="text-secondary fw-medium fs-5"></span>h
+                    </p>
+
+                    <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                        <span id="minutes-to-start" class="text-secondary fw-medium fs-5"></span>m
+                    </p>
+
+                    <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                        <span id="seconds-to-start" class="text-secondary fw-medium fs-5"></span>s
+                    </p>
+                </div>
+                {% include 'snippets/countdown_to_start.html' %}
+        </div>
+        {% include 'snippets/countdown_js.html' %}
+        {% endif %}
+        
+        {% if election_status == 'ongoing' %}
+        <button id="toggleCountdownBtn" class="btn btn-secondary rounded-circle">
+            <i id="toggleIcon" class="fas fa-times"></i>
+        </button>
+        <div class="countdown-content bg-white border-start border-2 border-danger shadow-sm ps-2 p-2" style="width: 225px !important;">       
+
+            <h5 class="fs-6 fw-bold mb-2 text-pc">Countdown to End</h5>
+            <div class="d-flex gap-3" id="election-to-start">
+                <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                    <span id="hours-end" class="text-secondary fw-medium fs-5"></span>h
+                </p>
+
+                <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                    <span id="minutes-end" class="text-secondary fw-medium fs-5"></span>m
+                </p>
+
+                <p class="fw-medium text-pc fs-6 fw-semibold mb-0">
+                    <span id="seconds-end" class="text-secondary fw-medium fs-5"></span>s
+                </p>
+            </div>    
+
+                {% include 'snippets/countdown_to_end.html' %}
+                
+            </div>
+        {% include 'snippets/countdown_js.html' %}
+        {% endif %}
+    </div>
+</div>

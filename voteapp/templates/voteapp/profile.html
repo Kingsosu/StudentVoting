@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Profile{% endblock title %}
+
+{% block countdown %}
+    {% include 'snippets/countdown_set.html' %}
+{% endblock countdown %}
+
+{% block content %}
+
+<style>
+    #id_profile_image{
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+    }
+    .image-container{
+        position: relative;
+    }
+    .image-container i{
+        height: 30px;
+        width: 30px;
+        background-color: #ff6b00;
+        cursor: pointer;
+        position: absolute;
+        bottom: 10%;
+        right: 30%;
+    }
+    .user-level-department{
+        display: inline-flex;
+        justify-content: space-between;
+        list-style: none;
+        font-size: 13px;
+    }
+
+    .img-fluid{
+        width: 200px;
+        height: auto;
+        object-fit: cover;
+    }
+</style>
+
+<div class="d-flex justify-content-center align-items-center">
+    <div class="card mt-4 bg-light shadow-md p-md-3" style="width: 400px;">
+        
+        <div class="card-body">  
+
+            <p class="mb-3 fw-semibold">My Profile</p>
+
+            <div class="user-profile-bio bg-white shadow-sm py-3 px-3 rounded mb-4">
+                
+                <!-- Add a link around the profile image to trigger the modal -->
+                <div class="image-container mx-auto mb-2 d-flex align-items-center justify-content-center">
+                    <a data-bs-toggle="modal" data-bs-target="#exampleModal" type="button">
+                        <img class="d-block border shadow-lg border-dark rounded-circle img-fluid mx-auto profile-image" alt="Profile Image" id="id_profile_image" src="{{ request.user.profile_image.url }}">
+                    </a>
+                </div>
+
+                <div class="user-info">
+                    <p class="text-center mb-1">
+                        <span class="fw-semibold fs-5">{{request.user.student.fullname}}</span> <br>
+                        <span class="fw-medium">{{request.user.student.matric_number}}</span>
+                    </p>
+
+                    <ul class="user-level-department w-100 ps-0 mb-0 fw-medium">
+                        <li>◘
+                            {% if request.user.is_candidate %}
+                            Candidate
+                            {% elif request.user.is_student %}
+                                Student
+                            {% else %}
+                                Unknown
+                            {% endif %}
+
+                        </li>
+                        <li>◘ {{request.user.student.department}}</li>
+                        <li>◘ {{request.user.student.level}} Level</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form autocomplete="off" id="profile-form">                
+                <div class="form-group mb-3">
+                    <label for="id_email">Username</label>
+                    <input class="form-control" type="text" value="{{request.user.username}}" aria-label="Disabled input example" disabled readonly>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_email">Email</label>
+                    <input class="form-control" type="text" value="{{request.user.email}}" aria-label="Disabled input example" disabled readonly>
+                </div>
+                             
+                <a type="button" class="btn btn-primary btn-block w-100 mb-3" id="update-button" href="{% url 'edit_profile' user_username=request.user.username %}">Update Profile</a>  
+                <a type="button" class="btn btn-secondary btn-block w-100 mb-3" id="change-password" href="{% url 'password_change' user_username=request.user.username %}">Change Password</a>  
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-6" id="exampleModalLabel">{{request.user.student.fullname}} - Profile Image</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex align-items-center justify-content-center">
+                <img class="img-fluid" src="{{ request.user.profile_image.url }}" alt="Profile Image">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

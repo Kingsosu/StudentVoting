@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Result{% endblock title %}
+
+{% load humanize %}
+
+{% block countdown %}
+    {% include 'snippets/countdown_set.html' %}
+{% endblock countdown %}
+
+{% comment %} HTMl {% endcomment %}
+{% block content %}
+<div class="mt-5">
+
+    <section class="mt-4">
+      <h5 class="fs-3 fw-bold mb-2 text-pc">S.U.G 2023/2024 Session e-Voting</h5>
+      <p class="fs-5 fw-medium mb-2">Final Election Results</p>
+      <hr>
+    </section>
+
+    <section class="mt-4">
+
+      {% if election_status == 'no_schedule' %}
+        <div class="alert-primary alert w-100 fw-medium" role="alert">
+            No schedule has been set for the election yet!
+        </div>
+      {% endif %}
+
+      {% if election_status == 'not_started' %}
+        <div class="alert alert-primary py-3">
+            <p class="mb-0 mt-0 fs-5 fw-semibold">The election has not yet begun!</p>
+            <p class="fw-medium mb-0">You cannot view the result until the election is over.</p>
+        </div> 
+      {% endif %}
+
+      {% if election_status == 'ongoing' %}
+        <div class="alert alert-primary py-3">
+            <p class="mb-0 mt-0 fs-5 fw-semibold">The election is still ongoing!</p>
+            <p class="fw-medium mb-0">You cannot view the result until the election is over.</p>
+        </div> 
+      {% endif %}
+      
+      {% if election_status == 'ended' %}
+        <ol class="candidate-container-vote">
+          <!-- Position  -->
+          {% for item in positions_with_results  %} 
+            <li class="mb-4">
+                <h4 class="fw-semibold text-pc mb-3">{{ item.position.title }}</h4>
+                <div class="card border-1 shadow-sm">
+                  <div class="card-body">
+                    {% if item.total_votes > 0 %}
+                        {% for candidate in item.position.aspirant_position.all|dictsortreversed:"total_vote" %}
+                            <div class="candidate-result mb-2">
+                              <p class="vote-small {% if forloop.first %} fw-semibold text-danger-emphasis {% else %} fw-medium {% endif %} fs-6 mb-1">
+                                  <span>{{ candidate.student.fullname }}</span> --- {{ candidate.total_vote }} vote{{candidate.total_vote|pluralize:",s"}}
+                                                                  
+                                  {% if request.user|has_voted_for_candidate:candidate %}
+                                    <small class="fw-bold">[You voted for this candidate]</small>
+                                  {% endif %}
+                                  
+
+                                  {% if forloop.counter == 1 %}  
+                                    <small class="fw-bold">[Winner]</small>
+                                  {% endif %}
+                              </p>
+                              <div class="progress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                  <div class="progress-bar progress-bar-striped progress-bar-animated {% if forloop.counter == 1 %}bg-success{% elif forloop.counter == 2 %}bg-primary{% elif forloop.last %}bg-danger{% else %}bg-info{% endif %}" style="width: {{ candidate.percentage_vote | floatformat:1 }}%">
+                                    {{ candidate.percentage_vote | floatformat:1 }}%
+                                  </div>
+                              </div>
+                            </div>
+                        {% endfor %}
+
+                    {% else %}
+                        <p>No votes yet for this position.</p>
+                    {% endif %}
+                </div>       
+            </li>
+          {% endfor %}
+        </ol>
+
+        <a type="button" href="{% url 'winners' user_username=request.user.username %}" class="btn btn-primary">See Winners</a>
+      
+      {% endif %}
+    
+    </section>
+</div>
+{% endblock content %}
+
+

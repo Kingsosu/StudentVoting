@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration{% endblock title %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="card form-layout mt-4 bg-light shadow-md p-md-3">
+        <div class="card-body">
+            <h1 class="mb-1 fs-4 fw-medium">Create your account</h1>
+            <hr class="mb-4">
+            <form autocomplete="off" method="post" id="registration-form" >
+                
+                {% csrf_token %}
+
+                <div class="form-group mb-3">
+                    <div id="message"></div>
+                    <div id="error-message" style="display: none;"></div> 
+                </div>  
+
+                <div class="form-group mb-3">
+                    <label for="id_role">Select Role:</label>
+                    <select class="form-select" id="id_role" name="role" data-field="role" onchange="showPasscodeField()" autofocus>
+                        <option value="" selected>---</option>
+                        <option value="student">Student</option>
+                        <option value="candidate">Candidate</option>
+                    </select>
+                </div>
+                
+                <div class="form-group mb-3 passcodeShowField" style="display: none;">
+                    <label for="id_passcode">Passcode</label>
+                    <input type="password" class="form-control" name="passcode" data-field="passcode" maxlength="12" id="id_passcode" placeholder="Enter passcode">
+                </div>
+
+                <div class="form-group mb-3 passcodeShowField" style="display: none;">
+                    <label for="id_position">Select Position:</label>
+                    <select class="form-select" id="id_position" data-field="position" name="position" required>     
+                        <option value="" selected>------</option>
+                        {% for position in position  %}
+                        <option value="{{position.id}}">{{position.title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+              
+                <div class="form-group mb-3">
+                    <label for="id_matric_number">Matric Number</label>
+                    <input type="text" class="form-control" name="matric_number" data-field="matric_number" maxlength="20" required id="id_matric_number" placeholder="Enter your matric number">
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="id_email">Email</label>
+                    <input type="email" class="form-control" name="email" data-field="email" maxlength="225" required id="id_email" placeholder="Enter your email"> 
+                </div>
+                
+
+                <div class="form-group mb-3">
+                    <label for="id_username">Username</label>
+                    <input type="text" class="form-control" name="username" data-field="username" maxlength="150" required id="id_username" placeholder="Enter your username">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_password1">Password</label>
+                    <input type="password" class="form-control w-100" name="password1" data-field="password1" autocomplete="new-password" required id="id_password1" placeholder="Enter your password">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_password2">Password Confirmation</label>
+                    <input type="password" class="form-control" name="password2"mdata-field="password2" autocomplete="new-password" required id="id_password2" class="form-control" placeholder="Confirm your password"> 
+                </div>
+                               
+                <button type="submit" class="btn btn-primary btn-block w-100 mb-3" id="register-button">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span class="loading-text d-none">Loading...</span>
+                    <span class="original-text">Register</span>
+                </button>    
+
+                <div class="text-center">
+                    <p class="text-reset mb-0">Already have an account <span> <a href="{% url 'login' %}"> Login </a> </span> </p> 
+                </div>
+            </form>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body" style="position: relative;">
+                {% comment %} <button type="button" class="btn-close close-modal-show" data-bs-dismiss="modal" aria-label="Close" style="float: right;"></button> {% endcomment %}
+                <p class="text-center" style="font-size: 3rem;">
+                    <i id="responseIcon"></i>
+                </p>
+                <p id="responseMessage" class="text-center fw-medium text-uppercase"></p>
+            </div>
+            <div class="modal-footer">
+                {% comment %} <button type="button" class="btn btn-secondary close-modal-show" data-bs-dismiss="modal">Close</button> {% endcomment %}
+                <a type="button" class="btn btn-secondary" href="{% url 'login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block userjs %}
+<script>
+    function showPasscodeField() {
+        var role = document.getElementById("id_role").value;
+        var passcodeFields = document.getElementsByClassName("passcodeShowField");
+    
+        for (var i = 0; i < passcodeFields.length; i++) {
+            passcodeFields[i].style.display = role === "candidate" ? "block" : "none";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var roleSelect = document.getElementById('id_role');
+        var passcodeInput = document.getElementById('id_passcode');
+        var positionSelect = document.getElementById('id_position');
+    
+        // Function to toggle the 'required' attribute based on role selection
+        function toggleFieldsRequired() {
+            if (roleSelect.value === 'candidate') {
+                passcodeInput.setAttribute('required', 'required');
+                positionSelect.setAttribute('required', 'required');
+            } else {
+                passcodeInput.removeAttribute('required');
+                positionSelect.removeAttribute('required');
+            }
+        }
+        roleSelect.addEventListener('change', toggleFieldsRequired);
+        toggleFieldsRequired();
+    });
+    
+    $(document).ready(function() {
+        $('#registration-form').submit(function(e) {
+            e.preventDefault(); 
+            
+            // Show loading text and spinner-border
+            $('#register-button').addClass('disabled').attr('disabled', true);
+            $('#register-button .loading-text').removeClass('d-none');
+            $('#register-button .spinner-border').removeClass('d-none');
+            $('#register-button .original-text').addClass('d-none');
+            
+            var formData = $(this).serialize();
+    
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'register' %}",
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        
+                        $('#responseMessage').text(response.message).addClass('text-success');
+                        $('#responseIcon').addClass('bi bi-patch-check-fill text-success')
+                        $('#responseModal').modal('show');
+                        
+                        
+                        /*var messages = '<div class="alert alert-success alert-common-message">' + response.message + '</div>';
+                        /$('#error-message').html('').hide();
+                        $('#registration-form')[0].reset();
+
+                        $('#message').html(messages).show();
+                        setTimeout(function(){
+                            window.location.href = "{% url 'login' %}"
+                            $('.alert-common-message').hide();
+                        }, 1000) 
+                        */
+
+                    } else {
+                        var errorMessage = '';           
+                        if (response.non_field_errors) {
+                            errorMessage += '<div class="alert alert-warning alert-common-message">' + response.non_field_errors.join('<br>') + '</div>';
+                        }
+                        var errors = response.errors;
+                        for (var field in errors) {
+                            errorMessage += '<div class="alert alert-warning alert-common-message">' + errors[field].join('<br>') + '</div>';
+                            $('[data-field="' + field + '"]').addClass('error');
+                        }
+    
+                        $('#error-message').html(errorMessage).show(); // Show error messages
+                        setTimeout(function() {
+                            $('.alert-common-message').hide(); // Hide all alert messages after 5 seconds
+                        }, 5000);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#message').text('Error: ' + error).css('color', 'red');
+                },
+                complete: function() {
+                    // Hide spinner on register button
+                    $('#register-button').removeClass('disabled').attr('disabled', false);
+                    $('#register-button .loading-text').addClass('d-none');
+                    $('#register-button .spinner-border').addClass('d-none');
+                    $('#register-button .original-text').removeClass('d-none');
+                }
+            });
+        });
+    });
+               
+</script>
+{% endblock userjs %}

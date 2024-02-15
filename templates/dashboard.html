@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+    Dashboard
+{% endblock title %}
+
+
+{% block content %}
+
+<div class="container mt-5">
+    <section class="mt-4">
+        <div class="mb-5">
+            <h5 class="fs-3 fw-normal text-danger-emphasis">Welcome to the dashboard page, <span class="fw-medium text-pc">{{request.user.username}}</span> 👋</h5>            
+        </div>
+        
+        <div class="row d-flex align-items-start justify-content-md-start justify-content-center">
+            
+            <!-- User Information Section -->
+            <div class="col-10 col-md-6 col-lg-4 col-xxl-4 mb-3 custom-column">
+                <div class="card shadow-sm user-information-container d-flex flex-column justify-content-center align-items-center p-2 w-100">
+                    <img src="{{request.user.profile_image.url}}" class="card-img-top mt-4 shadow-sm" alt="user image" style="border-radius: 50%;">
+                    <div>
+                        
+                        <div class="card-body">
+                            <h5 class="card-title fs-5">
+                                <span class="fw-semibold">User Information,</span> 
+                                <span class="text-black-50 fs-6"> 
+                                    {% if is_candidate %}
+                                        Candidate
+                                    {% elif is_student %}
+                                        Student
+                                    {% else %}
+                                        Unknown
+                                    {% endif %}
+                                </span>
+                            </h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <p class="text-black fw-medium">
+                                        Name: <span class="text-black-50">{{fullname}}</span>
+                                    </p>
+                                </li>
+                                <li class="list-group-item">
+                                    <p class="text-black fw-medium">
+                                        Matric Number: <span class="text-black-50">{{matric_number}}</span>
+                                    </p>
+                                </li>
+                                <li class="list-group-item">
+                                    <p class="text-black fw-medium">
+                                        Department: <span class="text-black-50">{{department}}</span>
+                                    </p>
+                                </li>
+                                {% if is_candidate %}
+                                <li class="list-group-item">
+                                    <p class="text-black fw-medium">
+                                        Constant Position: 
+                                        <span class="text-black-50">{{position}}
+                                            {% if election_status == 'ended' %} 
+                                                -- <span class="fw-bolds">
+                                                    {{total_number_of_voter}} vote{{total_number_of_voter|pluralize:",s"}} 
+                                                </span> 
+                                            {% endif %}
+                                        </span>
+                                    </p>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Vote Card Section -->
+            <div class="col-10 col-md-6 col-lg-4 col-xxl-4 mb-3 custom-column">
+                <div class="card shadow-sm user-information-container d-flex flex-column justify-content-center align-items-center p-2 w-100">
+                    <img src="{% static 'images/Ballot-Box-1.jpg' %}" class="shadow card-img-top mt-4" alt="candidate image" style="border-radius: 50%;">
+                    <div class="card-body">
+                        <h5 class="card-title fs-5 fw-semibold">Vote for Your Preferred Candidates</h5>
+                        <p class="card-text mb-2">Review the candidates and cast your vote for the future student leaders.</p>
+                        {% if election_status == 'ongoing' %} 
+                            <a href="{% url 'vote' user_username=request.user.username %}" class="btn btn-outline-primary">Cast Your Vote</a>
+                        {% else %}
+                            <button type="button" class="btn btn-outline-primary" style="cursor: pointer;" disabled>Cast Your Vote</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Election  -->
+            <div class="col-10 col-md-6 col-lg-4 col-xxl-4 mb-3 custom-column">
+                {% if election_status == 'no_schedule' %}
+                    <div class="card alert alert-primary shadow-sm user-information-container d-flex flex-column justify-content-start align-items-start p-2 w-100" id="election-not-started">                     
+                        <div class="card-body w-100">
+                            <h5 class="card-title fs-5 fw-semibold mb-2">Election Schedule</h5>
+                            <p class="fs-6 fw-medium">No schedule has been set for the election yet!</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if election_status == 'not_started' %}
+                    <!--If Election has not started, show this -->
+                    <div class="alert alert-primary w-100" role="alert">
+                        The election will start on {{ election_time.election_datetime }}
+                    </div>
+        
+                <!--If Election has not started show this countdown -->
+                <div class="card shadow-sm user-information-container p-2 w-100" id="election-not-started">                     
+                    <div class="card-body w-100 d-flex flex-column justify-content-start align-items-center">
+                        <h5 class="card-title fs-5 fw-semibold">Countdown Left to Start</h5>
+                        <div class="election-day w-100 d-flex justify-content-between" id="election-to-start">
+                            
+                            <div>
+                                <p id="days-to-start" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium fs-kings">Days</span>
+                            </div>
+
+                            <div>
+                                <p id="hours-to-start" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium fs-kings">Hours</span>
+                            </div>
+                            <div>
+                                <p id="minutes-to-start" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium fs-kings">Minutes</span>
+                            </div>
+                            <div>
+                                <p id="seconds-to-start" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium fs-kings">Seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% include 'snippets/countdown_to_start.html' %}
+
+                {% endif %}
+
+                {% if election_status == 'ongoing' %}
+                <!--If Election has started show this -->
+                <div class="alert alert-warning" role="alert">
+                    Time is running out! Make your voice heard by casting your vote.
+                </div>
+
+                <!--If Election has started show this countdown Left to Ends -->
+                <div class="card shadow-sm user-information-container p-2 w-100" id="voting-not-started">                     
+                    <div class="card-body w-100 d-flex flex-column justify-content-start align-items-center">
+                        <h5 class="card-title fs-5 fw-semibold">Countdown Left to Ends</h5>
+                        <div class="election-day w-100 d-flex justify-content-between">
+                            <div>
+                                <p id="hours-end" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium">Hours</span>
+                            </div>
+                            <div>
+                                <p id="minutes-end" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium">Minutes</span>
+                            </div>
+                            <div>
+                                <p id="seconds-end" class="fw-semibold text-pc text-center"></p>
+                                <span class="fw-medium">Seconds</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                {% include 'snippets/countdown_to_end.html' %}
+
+                {% endif %}
+
+                {% if election_status == 'ended' %}
+                <!--If election has ended show this-->
+                <div class="alert alert-warning w-100" role="alert">
+                    <p>The election has concluded.</p>
+                    <a type="button" class="btn btn-secondary" href="{% url 'result' user_username=request.user.username %}">View Results</a>
+                </div>
+                {% endif %}
+
+
+            </div>
+
+        </div>
+    </section>
+</div>
+{% endblock content %}
+
+{% block userjs %}
+
+<script>
+    function padZero(number) {
+        return (number < 10 ? '0' : '') + number;
+    }    
+</script>
+
+{% endblock userjs %}

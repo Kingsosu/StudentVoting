@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,200;1,300;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+main{
+    min-height: 100vh;
+
+}
+html, *{
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+}
+
+:root{
+    --color: #ce504e
+}
+
+.text-pc{
+    color: #ff6b00 !important;
+}
+
+.fs-kings{
+    font-size: 0.95rem;
+}
+
+.spinner-content {
+    width: 50px;
+    height: 50px;
+}
+
+.spinner-loader {
+    z-index: 1110;
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0; /* Initially hide loader */
+    animation: fade-in 0.7s ease forwards;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* base page */
+.countdown-container{
+    position: fixed;
+    top: 15%;
+    right: 0%;
+    z-index: 1500;
+}
+.countdown-element.open{
+    transform: translateX(89%);
+    transition: all 1s linear;
+}
+.countdown-element{
+    animation: show-in 1s linear;
+}
+
+@keyframes show-in {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+#toggleCountdownBtn{
+    width: 25px !important;
+    height: 25px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* index page */
+.election-day{
+    display: flex;
+    justify-content: space-between;
+    max-width: 270px;
+}
+.election-day div{
+    /* flex-basis: 100%; */
+    flex-shrink: 1;
+}
+
+.election-day div p{
+    font-size: 30px;
+    margin-bottom: -10px;
+}
+
+/* registration page */
+.passcodeShowField{
+    display: block;
+    transition: all 0.5s ease-in-out;
+}
+
+.error {
+    border: 1px solid red;
+}
+
+.form-layout{
+    width: 500px;
+    border-radius: 15px;
+}
+
+/* dashboard page */
+.user-information-container img{
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.user-information-container{
+    max-height: 477.22px;
+}
+
+.user-information-container p{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.list-group-item{
+    padding: 0 !important;
+    padding: 0.7rem 0 !important;
+}
+
+/* vote page */
+.candidate-container-vote img{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color);
+}
+
+.candidate-container-vote{
+    list-style-type: none;
+    padding-left: 0 !important;
+}
+.candidate-container-vote .form-check{
+    padding-left: 0 !important;
+}
+.candidate-container-vote .row{
+    padding-left: 1rem;
+}
+
+.candidate-container-vote .row .card .card-body{
+    position: relative;
+}
+
+.candidate-container-vote .vote-icons {
+    position: absolute;
+    right: 20px;
+    top: 10%;
+}
+.candidate-container-vote .vote-icons i{
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.custom-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fs-custom{
+    font-size: .85rem;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* winngers page */
+.winner .table td, th{
+    vertical-align: middle;
+}
+
+th{
+    text-align: center;
+}
+
+.winner .table img {
+    min-width: 50px !important;
+    height: 50px !important;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.winner .fs-custom{
+    font-size: 1rem;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.flex-fullname {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 576px) {
+
+    html{
+        font-size: 14px;
+    }
+
+    .flex-fullname img {
+      margin-right: 10px;
+    }
+    .modal-screen{
+        width: 100% !important;
+    }
+    .modal-screen .modal-content{
+        width: 70%;
+    }
+    .modal-dialog-centered{
+        justify-content: center;
+    }
+
+
+}
+
+@media (max-width: 426px) {
+    .custom-column {
+      flex: 0 0 100% !important; /* Set to take up full width */
+    }
+    .modal-screen .modal-content{
+        width: 90%;
+    }
+    .modal-dialog{
+        margin: 0 !important;
+    }
+}

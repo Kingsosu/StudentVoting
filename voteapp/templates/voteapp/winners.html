@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Winners{% endblock title %}
+
+{% block countdown %}
+    {% include 'snippets/countdown_set.html' %}
+{% endblock countdown %}
+
+{% block content %}
+
+<div class="container mt-5">
+             
+    <section class="mt-4">
+        <h5 class="fs-3 fw-bold mb-2 text-pc">S.U.G 2023/2024 Session e-Voting</h5>
+        <p class="fs-5 fw-medium mb-2">Ultimate Champions Across All Categories - Election Results</p>
+        <hr>
+    </section>
+
+    <section class="mt-4 winner"> 
+
+        {% if election_status == 'no_schedule' %}
+            <div class="alert-primary alert w-100 py-3" role="alert">
+                No schedule has been set for the election yet!
+            </div>
+        {% endif %}
+        
+        {% if election_status == 'not_started' %}
+            <div class="alert alert-primary py-3">
+                <p class="mb-0 mt-0 fs-5 fw-semibold">The election has not yet begun!</p>
+                <p class="mb-0 fw-medium">You cannot view the winner until the election is over.</p>
+            </div> 
+        {% endif %}
+
+        {% if election_status == 'ongoing' %}
+            <div class="alert alert-primary py-3">
+                <p class="mb-0 mt-0 fs-5 fw-semibold">The election is still ongoing!</p>
+                <p class="mb-0 fw-medium">You cannot view the winner until the election is over.</p>
+            </div> 
+        {% endif %}
+      
+        {% if election_status == 'ended' %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-pc d-flex-sm align-items-center-sm col-3">Fullname</th>
+                            <th class="text-pc">Position</th>
+                            <th class="text-pc">Matric Number</th>
+                            <th class="text-pc">Level</th>
+                            <th class="text-pc">Department</th>
+                            <th class="text-pc">Total Votes</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for candidate in winning_candidates  %}
+                        <tr>
+                            <td class="flex-fullname">
+                                <img src="{{ candidate.user.profile_image.url }}" alt="User Image">
+                                {{ candidate.student.fullname }}
+                            </td>
+                            <td>{{ candidate.position.title }}</td>
+                            <td>{{ candidate.matric_number }}</td>
+                            <td>{{ candidate.student.level }}</td>
+                            <td>{{ candidate.student.department }}</td>
+                            <td>{{ candidate.total_vote }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        {% endif %}
+
+    </section>
+</div>
+
+{% endblock content %}

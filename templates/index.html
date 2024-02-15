@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    S.U.G E-VOTING
+{% endblock title %}
+
+    {% include 'snippets/countdown_set.html' %}
+
+
+{% block content %}
+
+    <section class="py-3 mt-5">
+
+        <div class="px-lg-5">
+            <div class="p-3 p-lg-3 bg-light rounded-3 text-center shadow-sm">
+                <div class="m-4 m-lg-5">
+                    <h1 class="display-6 fw-bold text-pc">Welcome to the S.U.G eVoting System.</h1>
+                    <p class="text-lead fw-medium" style="font-size: large;">
+                        Empower your voice by casting a vote for the candidate committed to representing your interests in the Student Union Government. Your choice is a powerful declaration, shaping the direction of our academic community. Stand tall and make your voice heard through the ballot.               
+                    </p>
+                    
+                    {% if request.user.is_authenticated %}
+                        <a class="btn btn-primary btn-lg" href="{% url 'vote' user_username=request.user.username %}">Vote now</a>
+                    {% else %}
+                        <a class="btn btn-primary btn-lg" href="{% url 'login' %}?next=request.path">Login to vote</a>
+                    {% endif %}
+                
+                
+                </div>
+            </div>
+
+            <div class="countdown mt-5 text-center">
+                {% if election_status == 'not_started' %}
+                    <div id="countdown-timer">
+                        <h5 class="card-title fs-5 fw-semibold mb-3">Countdown Left to Start</h5>
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            <div class="election-day w-100 d-flex justify-content-between border shadow-sm px-3 py-2" id="election-to-start">
+                                
+                                <div>
+                                    <p id="days-to-start" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium fs-kings">Days</span>
+                                </div>
+            
+                                <div>
+                                    <p id="hours-to-start" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium fs-kings">Hours</span>
+                                </div>
+                                <div>
+                                    <p id="minutes-to-start" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium fs-kings">Minutes</span>
+                                </div>
+                                <div>
+                                    <p id="seconds-to-start" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium fs-kings">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% include 'snippets/countdown_to_start.html' %}
+                {% endif %}
+
+                {% if election_status == 'ongoing' %}
+                    <div id="countdown-timer">
+                        <h5 class="card-title fs-5 fw-semibold mb-3">Countdown Left to Ends</h5>
+                        <div class="d-flex justify-content-center align-items-center w-100">
+                            <div class="election-day w-100 d-flex justify-content-between">
+                                <div>
+                                    <p id="hours-end" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium">Hours</span>
+                                </div>
+                                <div>
+                                    <p id="minutes-end" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium">Minutes</span>
+                                </div>
+                                <div>
+                                    <p id="seconds-end" class="fw-semibold text-pc text-center"></p>
+                                    <span class="fw-medium">Seconds</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% include 'snippets/countdown_to_end.html' %}
+                {% endif %}
+
+                {% if election_status == 'ended' %}
+                    <div id="countdown-timer">
+                        <div class="alert alert-warning w-100" role="alert">
+                            <p>The election has concluded.</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </section>
+
+{% endblock content %}
+
+{% block userjs %}
+<script>
+    function padZero(number) {
+        return (number < 10 ? '0' : '') + number;
+    }
+</script>
+{% endblock userjs %}

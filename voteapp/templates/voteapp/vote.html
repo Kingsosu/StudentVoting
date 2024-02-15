@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Vote{% endblock title %}
+
+{% block countdown %}
+    {% include 'snippets/countdown_set.html' %}
+{% endblock countdown %}
+
+
+{% block content %}
+    <div class="mt-5">
+                
+        <section class="mt-4">
+            <h5 class="fs-3 fw-bold mb-2 text-pc" style="">S.U.G 2023/2024 Session e-Voting</h5>
+            <p class="fs-5 fw-medium mb-2">Vote for your favourite candidate</p>
+            <hr>
+        </section>
+
+
+        <section class="mt-4">
+
+            {% if election_status == 'no_schedule' %}
+                <div class="w-100 alert alert-primary py-3" role="alert">
+                    No schdule for the election yet!!
+                </div>
+            {% endif %}
+
+            {% if election_status == 'not_started' %}
+                <div class="alert alert-primary py-3">
+                    <p class="mb-0 mt-0 fs-5 fw-semibold">The election has not started yet!</p>
+                    <p class="mb-0 fw-medium">Please wait until the election starts.</p>
+                </div> 
+            {% endif %}
+            
+            {% if election_status == 'ended' %}
+                <div class="w-100">
+                    <div class="alert alert-warning py-3" role="alert">
+                        <p class="mb-0 mt-0">The election has concluded.</p>
+                        <a href="{% url 'result' user_username=request.user.username %}" class="btn btn-secondary mt-2">View Results</a>
+                    </div>    
+                </div>
+
+            {% endif %}
+
+            
+            {% if election_status == 'ongoing' %}
+
+                {% if voting_status %}
+
+                <div class="alert alert-primary py-4">
+                    <p class="mb-0 mt-0 fs-6 fw-medium">You've already cast your vote</p>
+                    <a href="{% url 'result' user_username=request.user.username %}" class="btn btn-primary mt-4">View Result</a>
+                </div>
+
+                {% else %}                
+                
+                <form id="votingForm" method="post">
+                    {% csrf_token %}
+                    <ol class="candidate-container-vote">
+                        {% for item in positions_with_candidates %}         
+                            <li class="mb-4">
+                                <h4 class="fw-semibold mb-3 text-pc" style="">{{item.position.title}}</h4>
+                                <div class="row">
+
+                                    <!-- Candidates -->
+                                    {% for candidate in item.candidates  %}      
+                                        <div class="form-check col-12 col-md-6 col-lg-6 mb-3">
+                                            <div class="card border-1 shadow-sm">
+                                                <div class="card-body">
+                                                    <div class="candidate-vote-details d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-sm-3 gap-md-3 gap-lg-4">
+                                                        <div class="vote-img">
+                                                            <img src="{{candidate.user.profile_image.url}}" class="card-img-top " alt="Candidate 1">
+                                                        </div>
+                                                        <div class="candidate-info">
+                                                            <label class="form-check-label card-title fw-semibold fs-6 mb-0 mb-md-1" for="cand{{candidate.id}}">{{candidate.student.fullname}}</label>
+                                                            <p class="text-black fw-medium fs-custom">Level: <span class="text-black-50">{{candidate.student.level}}</span></p>
+                                                            <p class="text-black fw-medium fs-custom">Matric Number: <span class="text-black-50">{{candidate.student.matric_number}}</span></p>
+                                                            <p class="text-black fw-medium fs-custom">Department: <span class="text-black-50">{{candidate.student.department}}</span></p>
+                                                            <p class="text-black fw-medium fs-custom d-none">Id: <span class="text-black-50 candidate-id">{{candidate.id}}</span></p>
+                                                        </div>
+                                                    </div>
+                                                    <span class="vote-icons">
+                                                        <i class="fa fa-check rounded p-2 bg-dark-subtle text-white"></i>
+                                                        <i class="fa fa-times rounded p-2 bg-danger text-white d-none"></i>
+                                                    </span>
+                                                    <input class="form-check-input d-none candidate-radio" type="radio" name="{{candidate.position.slug}}" value="{{candidate.id}}" id="cand{{candidate.id}}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ol>
+
+                    <div class="row">
+                        <div class="col-12 col-md-3 col-lg-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-block w-100 mb-3" id="submit-button" disabled>
+                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                <span class="loading-text d-none fs-5">Submitting...</span>
+                                <span class="original-text  fs-5">Submit</span>
+                            </button>  
+                        </div>
+                    </div>
+
+                </form>
+
+                {% endif %}
+            
+            {% endif %}
+                
+        </section>
+    </div>
+
+    <div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body" style="position: relative;">
+                    <button type="button" class="btn-close close-modal-show" data-bs-dismiss="modal" aria-label="Close" style="float: right;"></button>
+                    <p class="text-center" style="font-size: 3rem;">
+                        <i id="responseIcon"></i>
+                    </p>
+                    <p id="responseMessage" class="text-center fw-medium text-uppercase"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-modal-show" data-bs-dismiss="modal">Close</button>
+                    <a type="button" class="btn btn-primary" href="{% url 'result' user_username=request.user.username %}">View Results</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+
+{% block userjs %}
+    <script>
+        //Update the submit-button if check on the raido input
+        document.addEventListener('DOMContentLoaded', function() {
+            const radioButtons = document.querySelectorAll('.candidate-radio');
+            const submitButton = document.getElementById('submit-button');
+
+            radioButtons.forEach(function(radioButton) {
+                radioButton.addEventListener('change', function() {
+                    submitButton.disabled = !document.querySelector('.candidate-radio:checked');
+                });
+            });     
+        });
+
+        const form = document.getElementById('votingForm');
+
+        form.addEventListener('click', function (event) {
+            const target = event.target;
+
+            if (target.classList.contains('fa-check') || target.classList.contains('fa-times')) {
+                const card = target.closest('.card');
+                const radio = card.querySelector('.form-check-input');
+
+                const checkIcon = card.querySelector('.fa-check');
+                const timesIcon = card.querySelector('.fa-times');
+
+                if (target.classList.contains('fa-check')) {
+                    // If fa-check is clicked, update the radio button
+                    radio.checked = true;
+                    console.log(radio)
+                    checkIcon.classList.add('d-none');
+                    timesIcon.classList.remove('d-none');
+                } else {
+                    // If fa-times is clicked, update the radio button
+                    radio.checked = false;
+                    console.log(radio)
+                    checkIcon.classList.remove('d-none');
+                    timesIcon.classList.add('d-none');
+                }
+
+                const isChecked = card.querySelector('input[type="radio"]:checked');
+
+                if (isChecked) {
+                    card.classList.add('border-2', 'border-primary');
+                } else {
+                    card.classList.remove('border-2', 'border-primary');
+                }
+
+                const changeEvent = new Event('change');
+                radio.dispatchEvent(changeEvent);
+
+                updateOtherCardBorders(card);
+            }
+        });
+
+        function updateOtherCardBorders(currentCard) {
+            const allCards = document.querySelectorAll('.card');
+            allCards.forEach(card => {
+                if (card !== currentCard) {
+                    const checkIcon = card.querySelector('.fa-check');
+                    const timesIcon = card.querySelector('.fa-times');
+
+                    const isChecked = card.querySelector('input[type="radio"]:checked');
+
+                    if (isChecked) {
+                        card.classList.add('border-2', 'border-primary');
+                        checkIcon.classList.add('d-none');
+                        timesIcon.classList.remove('d-none');
+                    } else {
+                        card.classList.remove('border-2', 'border-primary');
+                        checkIcon.classList.remove('d-none');
+                        timesIcon.classList.add('d-none');
+                    }
+                }
+            });
+        }
+
+        //Submit the form using ajax
+        $(document).ready(function(){
+
+            $('#votingForm').submit(function(e){
+                e.preventDefault();
+
+                //Disable the submit button to prevent muttiple submissions
+                $('#submit-button').prop('disabled', true);
+
+                // Show loading text and spinner-border
+                $('#submit-button .loading-text').removeClass('d-none');
+                $('#submit-button .spinner-border').removeClass('d-none');
+                $('#submit-button .original-text').addClass('d-none');
+                
+                //Create an empty object to store the selected candidates
+                var selectedCandidates = {}
+
+                //Loop through the raido buttons to find the selected candidates
+                $('input[type="radio"]:checked').each(function(){
+                    var positionSlug = $(this).attr('name');
+                    var candidateId = $(this).val();
+                    selectedCandidates[positionSlug] = candidateId;
+                });
+
+                //Convert the selected candidates object to JSON
+                var jsonData = JSON.stringify(selectedCandidates);
+
+                var payload = {
+                    "csrfmiddlewaretoken": "{{ csrf_token }}",
+                    "selected_candidates" : jsonData
+                }
+
+                //Send an AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url : "{% url 'submit_vote' %}",
+                    data: payload,
+                    dataType: 'json',
+                    success: function(response){
+                        if(response.success){
+                            $('#responseMessage').text(response.message).addClass('text-success');
+                            $('#responseIcon').addClass('bi bi-patch-check-fill text-success')
+                            $('#responseModal').modal('show');
+                        }
+                        else{
+                            $('#responseMessage').text(response.message).addClass('text-danger');
+                            $('#responseIcon').addClass('bi bi-bug text-danger')
+                            $('#responseModal').modal('show');
+                        }
+                    },
+                    error: function(xhr, status, error){
+                        // Show error message
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    },
+                    complete: function(){
+                        // Hide spinner on register button
+                        $('#submit-button').prop('disabled', false);
+                        $('#submit-button .loading-text').addClass('d-none');
+                        $('#submit-button .spinner-border').addClass('d-none');
+                        $('#submit-button .original-text').removeClass('d-none');
+                    }
+                });
+
+            })
+        });
+
+        
+        // Close modal when close icon is clicked
+        $('.close-modal-show').each(function() {
+            $(this).click(function(){
+                window.location.reload();
+            })
+        });
+
+
+    </script>
+{% endblock userjs %}
