@@ -46,7 +46,6 @@ This project is an electronic voting (eVoting) system designed specifically for 
 
 6. **Password Reset**: In case of forgotten passwords, users can request a password reset via email to regain access to their accounts.
 
-
 ## Getting Started
 
 To get started with the eVoting system for college students, follow these steps:
@@ -54,7 +53,7 @@ To get started with the eVoting system for college students, follow these steps:
 1. **Clone the Repository**: Clone the project repository to your local machine using Git:
 
     ```bash
-    git clone https://github.com/your-username/evoting-system.git
+    git clone https://github.com/your-username/StudentVoting.git
     ```
 
 2. **Set up your virtual environment:**
@@ -67,7 +66,7 @@ To get started with the eVoting system for college students, follow these steps:
 3. **Install Dependencies**: Navigate to the project directory and install the required dependencies using pip:
 
     ```bash
-    cd evoting-system
+    cd votesystem
     pip install -r requirements.txt
     ```
 
@@ -84,11 +83,28 @@ To get started with the eVoting system for college students, follow these steps:
     python manage.py runserver
     ```
 
-6. **Access the Application**: Open your web browser and navigate to [http://localhost:8000](http://localhost:8000) to access the eVoting system. You can log in with the superuser account created in step 3 or register a new account as a student user.
+6. **Access the Application**: Open your web browser and navigate to [http://localhost:8000](http://localhost:8000) to access the eVoting system. You can log in with the superuser account created in step 4 or register a new account as a student user.
 
 7. **Explore Features**: Explore the various features of the eVoting system, including user registration, candidate registration, voting, profile management, result viewing, and more.
 
 8. **Customize as Needed**: Modify the codebase according to your requirements or contribute to the project by adding new features, fixing bugs, or improving existing functionality.
+
+## Environment Variables
+
+Before running the eVoting system, make sure to set up the following environment variables:
+
+- **SECRET_KEY**: Django requires a secret key to securely manage sessions, passwords, and other cryptographic functions. Generate a random secret key and set it as the value for this variable.
+
+- **EMAIL_HOST**: Specify the SMTP server host for sending email notifications, such as password reset emails. Consult your email service provider for the appropriate host address.
+
+- **EMAIL_PORT**: Specify the SMTP server port for sending email notifications. The default port for SMTP is 587.
+
+- **EMAIL_HOST_USER**: Provide the email address or username for authenticating with the SMTP server.
+
+- **EMAIL_HOST_PASSWORD**: Provide the password for authenticating with the SMTP server.
+
+Ensure that you securely manage these environment variables and do not expose them in version control or publicly accessible locations.
+
 
 By following these steps, you can set up and start using the eVoting system for college students on your local machine. Enjoy voting and participating in campus elections with ease and convenience!
 

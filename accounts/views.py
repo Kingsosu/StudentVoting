@@ -8,9 +8,10 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from login_required import login_not_required
 
 # Create your views here.
-
+@login_not_required
 def registration_view(request):
     context = {}
     positions = Position.objects.all().order_by('asociate_number')
@@ -64,6 +65,7 @@ def registration_view(request):
         
     return render(request, 'accounts/register.html', context)
 
+@login_not_required
 def login_view(request):
     context = {}
     user = request.user
@@ -84,6 +86,7 @@ def login_view(request):
                 login(request, user)
                 next_url = request.POST.get('next')
                 if next_url:
+                    print(next_url)
                     return JsonResponse({'success': True, 'message': 'Login successful', 'user_username': user.username, 'next': next_url})
                 else:
                     return JsonResponse({'success': True, 'message': 'Login successful', 'user_username': user.username})
@@ -96,39 +99,7 @@ def login_view(request):
         context['form'] = AccountAuthenicateForm()
     return render(request, 'accounts/login.html', context)
 
-
-# def login_view(request):
-#     context = {}
-#     user = request.user
-#     msg = ""
-   
-#     if user.is_authenticated:
-#         return redirect('dashboard', user_username = request.user.username)
-    
-#     form = AccountAuthenicateForm()
-    
-#     if request.POST:
-#         form = AccountAuthenicateForm(request.POST)
-#         if form.is_valid():
-#             email = request.POST.get('email')
-#             password = request.POST.get('password')
-
-#             user = authenticate(email=email, password=password)
-            
-#             if user is not None:
-#                 login(request, user)
-#                 if "next" in request.POST:
-#                     return redirect(request.POST.get("next"))
-#                 else:
-#                     return redirect("dashboard", user_username=request.user.username)
-#             else:
-#                 msg = 'Invalid email or password.'  # Corrected assignment of the message
-#             context['msg'] = msg
-#     context['form'] = form
-
-#     return render(request, 'accounts/login.html', context)
-
-@login_required(login_url='login')
+# @login_required(login_url='login')
 def logout_view(request):
     logout(request)
     return redirect("index")

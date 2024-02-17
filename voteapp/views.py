@@ -4,8 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
+from login_required import login_not_required
 
-from accounts.models import Account
+from accounts.models import Account, get_profile_image
 from accounts.forms import AccountUpateForm
 from students.models import Student
 from voteapp.models import AspirantListStudent, Position
@@ -13,10 +14,11 @@ from voteapp.utils import election_view, check_voting_status, get_positions_with
 
 import json, os, cv2, base64
 
+
 # Create your views here.
 
-
 # Index page
+@login_not_required
 def index(request):
 
     context = {}
@@ -24,7 +26,8 @@ def index(request):
 
     return render(request, 'index.html', context)
 
-@login_required(login_url='login')
+
+# Dashboard page
 def dashboard(request, *args, **kwargs):
     context = {}
 
@@ -66,7 +69,6 @@ def dashboard(request, *args, **kwargs):
 
 
 # Vote page
-@login_required(login_url='login')
 def vote_view(request, *args, **kwargs):
     context = {}
   
@@ -137,7 +139,6 @@ def submit_vote(request):
 
 
 # Result page
-@login_required(login_url='login')
 def result_view(request, *args, **kwargs):
 
     context = {}
@@ -183,7 +184,6 @@ def result_view(request, *args, **kwargs):
 
 
 # Winners page
-@login_required(login_url='login')
 def winners_view(request, *args, **kwargs):
     
     context = {}
@@ -222,7 +222,6 @@ def winners_view(request, *args, **kwargs):
     return render(request, 'voteapp/winners.html', context)
 
 # Profile page
-@login_required(login_url='login')
 def profile_view(request, *args, **kwargs):
     
     context = {}
@@ -248,7 +247,6 @@ def profile_view(request, *args, **kwargs):
 
 
 # Edit profile
-@login_required(login_url='login')
 def edit_profile_view(request, *args, **kwargs):
     
     context = {}
@@ -300,6 +298,7 @@ def edit_profile_view(request, *args, **kwargs):
 
     return render(request, 'voteapp/edit_profile.html', context)
 
+
 # Saving crop image
 def crop_image_view(request, *args, **kwargs):
     payload = {}
@@ -324,18 +323,15 @@ def crop_image_view(request, *args, **kwargs):
             crop_img = img[cropY:cropY + cropHeight, cropX: cropX + cropWidth]
             cv2.imwrite(url, crop_img)
 
-            # i don't want to delete the image if file is 'kscode/profile_image.png'
-            # if user.profile_image.path == 'kscode/profile_image.png':
-            #     pass
-            # else:
-            #     user.profile_image.delete()
+            default_image_path = get_profile_image()
 
-            if 'profile_image.png' not in user.profile_image.name:
+            # Check if the current profile image is not the default one
+            if default_image_path not in user.profile_image.name:
                 print('deleted')
                 user.profile_image.delete()
 
             # Save the crop image directly to the profile_image field
-            user.profile_image.save(f'profile_image_{user.username}.png', files.File(open(url, 'rb')))
+            user.profile_image.save(f'profile_image.png', files.File(open(url, 'rb')))
             user.save()
             payload['result'] = 'success'
             payload['cropped_profile_image'] = user.profile_image.url

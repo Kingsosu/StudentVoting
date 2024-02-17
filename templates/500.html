@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    404 Error
+{% endblock title %}
+
+{% block content %}
+
+    <link type="text/css" rel="stylesheet" href="{% static 'css/non_foujnd.css' %}" />
+
+    <div id="notfound">
+        <div class="notfound">
+            <div class="notfound-404">
+                <h3>Oops! Server Error</h3>
+                <h1><span>5</span><span>0</span><span>0</span></h1>
+            </div>
+            <h2>Sorry, something went wrong on our end. We're working to fix the issue.</h2>
+        </div>
+    </div>
+
+{% endblock content %}

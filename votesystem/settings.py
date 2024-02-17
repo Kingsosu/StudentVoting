@@ -9,16 +9,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-import environ
+import environ, ast
 
+import pdb; 
+
+# pdb.set_trace()
 env = environ.Env()
 environ.Env.read_env()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+debug_value = ast.literal_eval(env('DEBUG'))
+DEBUG = debug_value
 
 ALLOWED_HOSTS = ['*']
 
@@ -35,6 +38,9 @@ INSTALLED_APPS = [
     'accounts',
     'students',
     'voteapp',
+
+    'jazzmin',
+
     'django.contrib.humanize',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,8 +57,19 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'login_required.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+LOGIN_URL = 'login'
+LOGIN_REQUIRED_IGNORE_VIEW_NAMES = [
+    'admin:index',
+    'admin:login',
+    'reset_password',
+    'password_reset_done',
+    'password_reset_confirm',
+    'password_reset_complete',
 ]
 
 ROOT_URLCONF = 'votesystem.urls'
@@ -82,13 +99,13 @@ WSGI_APPLICATION = 'votesystem.wsgi.application'
 import dj_database_url
 
 if DEBUG:
+    print("Yes")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    pass
 else:
     DATABASES = {
         'default' : dj_database_url.parse(env('DATABASE_URL'))
@@ -134,11 +151,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-if DEBUG:
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
-        os.path.join(BASE_DIR, 'media'),
-    ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'media'),
+]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
@@ -168,3 +184,4 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 3145728 # 3mb = 3 * 1024 *1024
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

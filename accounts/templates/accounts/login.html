@@ -19,7 +19,9 @@
                 <div class="form-group mb-3">
                     <label for="id_password">Password</label>
                     <input type="password" class="form-control w-100" name="password" id="id_password" placeholder="Enter your password" required>
-                </div>   
+                </div>
+
+                <input type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next }}{% endif %}">
 
                 <div class="form-group mb-3" id="error-message"></div>   
                
@@ -29,7 +31,7 @@
                           
                 <button type="submit" class="btn btn-primary btn-block w-100 mb-3" id="login-button">
                     <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    <span class="loading-text d-none">Loading...</span>
+                    <span class="loading-text d-none">Authenticating...</span>
                     <span class="original-text">Login</span>
                 </button>  
                 
